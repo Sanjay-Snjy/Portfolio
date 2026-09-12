@@ -1,0 +1,151 @@
+/* ── TechStack — HUD dark glass theme ────────────── */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.stack__header {
+  margin-bottom: 0.5rem;
+}
+
+.stack__eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.777);
+  margin-bottom: 0.4rem;
+}
+
+.stack__title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.stack__map {
+  margin-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+.stack__map-inner {
+  position: relative;
+}
+
+/* ── Connector wires ────────────────────────────── */
+.stack__wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stack__wire {
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.45;
+  stroke-dasharray: 5 4;
+  animation: wire-in 0.45s ease-out backwards;
+}
+
+@keyframes wire-in {
+  from { opacity: 0; stroke-dashoffset: 22; }
+  to { opacity: 0.45; stroke-dashoffset: 0; }
+}
+
+/* ── Groups & chips ─────────────────────────────── */
+.stack__groups {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.stack__group-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.823);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stack__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.237);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(80px);
+}
+
+.chip__glyph {
+  color: rgba(255, 255, 255, 0.659);
+  flex: none;
+  display: block;
+  vertical-align: middle;
+  margin-top: -1px;
+  transition: color 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chip__name {
+  font-size: 0.72rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.chip:hover,
+.chip.is-active {
+  color: #fff;
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.15);
+}
+
+.chip:hover .chip__glyph,
+.chip.is-active .chip__glyph {
+  color: #60a5fa;
+  transform: scale(1.1);
+}
+
+.chip.is-related {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(96, 165, 250, 0.4);
+}
+
+.chip.is-related .chip__glyph {
+  color: #93c5fd;
+}
+
+.chip.is-dim {
+  opacity: 0.3;
+}
+
+/* ── Breakpoints ────────────────────────────────── */
+@media (min-width: 520px) {
+  .stack__groups {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,204 @@
+/* ── Contact — HUD dark glass theme ───────────────── */
+
+.contact-view {
+  height: 100%;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.contact-view::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.contact-header {
+  flex-shrink: 0;
+}
+
+.contact-eyebrow {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.contact-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  background: linear-gradient(120deg, #fff 30%, #d9dada 70%, #a8a8a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.contact-dot {
+  color: #e2e3e3;
+  -webkit-text-fill-color: #dee0e1;
+}
+
+.contact-sub {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.55);
+  max-width: 420px;
+}
+
+/* ── Form fields — floating labels on a glowing underline ── */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.contact-field {
+  position: relative;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  padding: 16px 14px 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.contact-field textarea {
+  min-height: 110px;
+}
+
+.contact-field label {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* Float the label up when focused or filled */
+.contact-field input:focus + label,
+.contact-field input:not(:placeholder-shown) + label,
+.contact-field textarea:focus + label,
+.contact-field textarea:not(:placeholder-shown) + label {
+  top: 5px;
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f4f5f6;
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+  border-color: rgba(253, 253, 253, 0.55);
+  background: rgba(96, 165, 250, 0.06);
+  box-shadow: 0 0 0 3px rgba(232, 232, 232, 0.12), 0 0 24px rgba(228, 228, 229, 0.08);
+}
+
+/* ── Actions row ─────────────────────────────────── */
+.contact-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.contact-send {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(154, 154, 154, 0.203), rgba(196, 196, 196, 0.164));
+  border: 1px solid rgba(202, 202, 202, 0.35);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(179, 179, 180, 0.25);
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.contact-send:hover {
+  box-shadow: 0 6px 28px rgba(181, 181, 181, 0.4);
+  filter: brightness(1.08);
+}
+
+.contact-send.is-sent {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.85), rgba(16, 185, 129, 0.85));
+  border-color: rgba(110, 231, 183, 0.4);
+}
+
+.contact-send.is-error {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.85), rgba(220, 38, 38, 0.85));
+  border-color: rgba(252, 165, 165, 0.4);
+}
+
+.contact-send:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Tiny spinner for the sending state */
+.contact-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: contact-spin 0.7s linear infinite;
+}
+
+@keyframes contact-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Social pills ────────────────────────────────── */
+.contact-socials {
+  display: flex;
+  gap: 8px;
+}
+
+.contact-social {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.contact-social:hover {
+  color: #93c5fd;
+  border-color: rgba(96, 165, 250, 0.45);
+  background: rgba(96, 165, 250, 0.1);
+}

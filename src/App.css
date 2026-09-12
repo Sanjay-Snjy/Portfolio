@@ -1,0 +1,355 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 3D Scene Background ─────────────────────────── */
+.scene-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ── HUD Overlay ─────────────────────────────────── */
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  transform-origin: center center;
+}
+
+.hud-overlay > * {
+  pointer-events: auto;
+}
+
+/* ── Top Controls ────────────────────────────────── */
+.top-controls {
+  position: absolute;
+  top: 40px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* ── Zoom Slider ─────────────────────────────────── */
+.zoom-slider-container {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* ── Content Layout ──────────────────────────────── */
+.content-layout {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 80px 40px 120px;
+}
+
+/* ── Center Content ──────────────────────────────── */
+.center-content {
+  flex: 1;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 15, 25, 0.55);
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.center-inner {
+  width: 100%;
+  /* Fixed layout height — every section (Home, Projects, Personal, Career, Contact)
+     renders inside the same sized panel; pages scroll internally if needed. */
+  height: calc(100vh - 255px);
+}
+
+/* ── Projects View ───────────────────────────────── */
+.projects-view {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Scrollbar hidden — scrolling still works (wheel, touch, drag) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/legacy Edge */
+}
+
+.projects-view::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.home-view {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 20px;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+
+/* ── Glass Panel Base ────────────────────────────── */
+.glass-panel {
+  background:  rgba(237, 237, 240, 0.056);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 30px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-dark {
+  background:  rgba(237, 237, 240, 0.056);
+  backdrop-filter: blur(50px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ── Placeholder Views ───────────────────────────── */
+.personal-view {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.placeholder-view {
+  padding: 40px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ── Education View ─────────────────────────────── */
+.education-view {
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.education-view::-webkit-scrollbar {
+  display: none;
+}
+
+.education-header {
+  flex-shrink: 0;
+}
+
+.education-eyebrow {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.education-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+
+/* Timeline spine */
+.education-list::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgba(96, 165, 250, 0.5),
+    rgba(139, 92, 246, 0.3),
+    rgba(96, 165, 250, 0.15)
+  );
+}
+
+.education-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px 14px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.058);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+.education-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #ffffff, #b0b0b0);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.education-degree {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 3px;
+}
+
+.education-inst {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+.placeholder-view h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.placeholder-view p {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+}
+
+/* ── Landing Screen ─────────────────────────────── */
+.landing-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.landing-btn-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-btn {
+  position: relative;
+  z-index: 2;
+  padding: 16px 40px;
+  border-radius: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  transform-style: preserve-3d;
+  transition: transform 0.1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.landing-glow-1 {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.25) 0%, rgba(139, 92, 246, 0.12) 40%, transparent 70%);
+  filter: blur(25px);
+  animation: glowPulse1 4s ease-in-out infinite;
+}
+
+.landing-exit-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.5) 0%, rgba(192, 132, 252, 0.3) 30%, rgba(244, 114, 182, 0.15) 60%, transparent 80%);
+  filter: blur(20px);
+}
+
+@keyframes glowPulse1 {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* ── Focus Hint ──────────────────────────────────── */
+/* ── Social Bar Container ─────────────────────── */
+.social-bar-container {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 15;
+  pointer-events: none;
+  
+}
+
+.social-bar-container > * {
+  pointer-events: auto;
+}
+
+.focus-hint {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  animation: fadeOutHint 4s ease-in-out 4s forwards;
+}
+
+@keyframes fadeOutHint {
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+}
