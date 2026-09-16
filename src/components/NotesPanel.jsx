@@ -20,11 +20,6 @@ export default function NotesPanel({ onClose, activeTech, activeSection, hovered
         <div style={styles.headerLeft}>
           <h3 style={styles.title}>Notes</h3>
         </div>
-        <div style={styles.headerRight}>
-          <button style={styles.iconBtn} onClick={onClose}>
-            <X size={16} />
-          </button>
-        </div>
       </div>
 
       {/* Content */}
@@ -206,7 +201,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '16px 18px 12px',
+    padding: '24px 18px 14px',
     borderBottom: '1px solid rgba(255,255,255,0.06)',
   },
   headerLeft: {

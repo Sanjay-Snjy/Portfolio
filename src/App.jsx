@@ -7,7 +7,7 @@ import TechStack from './components/TechStack'
 import NotesPanel from './components/NotesPanel'
 import SocialBar from './components/SocialBar'
 import Controls from './components/Controls'
-import ProfileCard from './components/ProfileCard'
+import Home from './components/Home'
 import ContactSection from './components/ContactSection'
 import CursorOrb from './components/CursorOrb'
 import LandingScreen from './components/LandingScreen'
@@ -52,9 +52,10 @@ function AppInner() {
       {/* Landing Screen — transparent, just the icon */}
       {!entered && <LandingScreen onEnter={() => setEntered(true)} />}
 
-      {/* Top right controls — fixed, not affected by zoom */}
-      <div className="top-controls" style={{ opacity: entered ? 1 : 0, transition: 'opacity 0.35s' }}>
+      {/* Top right controls — always visible; back button only after entering */}
+      <div className="top-controls">
         <Controls
+          showBack={entered}
           onBack={() => setEntered(false)}
           onFullscreen={toggleFullscreen}
         />
@@ -78,6 +79,7 @@ function AppInner() {
         {/* Main content area */}
         <div className="content-layout">
           {/* ── Left Nav ── tilt inward based on zoom ── */}
+          <div className="nav-wrapper">
           <TiltLayer
             baseRotateY={Math.max(0, 4 + (zoom - 0.88) * 35)}
             baseRotateX={-1}
@@ -92,6 +94,7 @@ function AppInner() {
               onNavigate={(s) => { setActiveSection(s); setActiveTechId(null) }}
             />
           </TiltLayer>
+          </div>
 
           {/* ── Center Content ── (no tilt — stays flat) */}
           <div className="center-content glass-panel-dark">
@@ -106,7 +109,7 @@ function AppInner() {
               >
                 {activeSection === 'Home' && (
                   <div className="home-view">
-                    <ProfileCard />
+                    <Home />
                   </div>
                 )}
                 {activeSection === 'Projects' && (
@@ -144,6 +147,7 @@ function AppInner() {
           </div>
 
           {/* ── Right Notes Panel ── */}
+          <div className="notes-wrapper">
           <AnimatePresence>
             {showNotes && (
               <motion.div
@@ -170,6 +174,7 @@ function AppInner() {
               </motion.div>
             )}
           </AnimatePresence>
+          </div>
         </div>
 
         {/* ── Bottom Social Bar ── */}

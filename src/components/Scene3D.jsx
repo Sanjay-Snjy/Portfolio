@@ -16,11 +16,12 @@ export default function Scene3D() {
     const y = (clientY / innerHeight - 0.5) * 2
 
     // Parallax transforms — background shifts opposite to cursor for depth
-    const translateX = x * -20
-    const translateY = y * -15
-    const scale = 1.05 + Math.abs(x * y) * 0.02
+    // X-axis tuned for panorama: big horizontal drift + rotateY sweep
+    const translateX = x * -180
+    const translateY = y * -14
+    const scale = 1.1 + Math.abs(x * y) * 0.02
     const rotateX = y * -2
-    const rotateY = x * 3
+    const rotateY = x * 6
 
     bgRef.current.style.transform =
       `translate(${translateX}px, ${translateY}px) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
@@ -48,7 +49,7 @@ export default function Scene3D() {
         }}
       >
         <img
-          src="/bg5.png"
+          src="/bg6.png"
           alt=""
           onLoad={() => setLoaded(true)}
           style={styles.img}
@@ -72,8 +73,9 @@ const styles = {
     perspectiveOrigin: '40% 40%',
   },
   bg: {
+    // Wide horizontal bleed so the stronger x-axis drift/rotation never exposes edges
     position: 'absolute',
-    inset: '-60px',
+    inset: '-60px -320px',
     transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.8s ease',
     willChange: 'transform',
     transformStyle: 'preserve-3d',

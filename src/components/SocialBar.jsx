@@ -6,7 +6,6 @@ const links = [
   { label: 'LinkedIn', icon: Link2, href: '#' },
   { label: 'Email', icon: Mail, href: '#' },
   { label: 'Github', icon: Code2, href: '#' },
-  { label: 'Phone', icon: Phone, href: '#' },
 ]
 
 export default function SocialBar() {
@@ -41,15 +40,15 @@ export default function SocialBar() {
 const styles = {
   bar: {
     display: 'flex',
-    gap: 4,
-    padding: '8px 12px',
+    gap: 25 ,
+    padding: '8px 10px',
     borderRadius: 50,
   },
   link: {
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    padding: '8px 18px',
+    gap: 12,
+    padding: '13px 18px',
     borderRadius: 50,
     border: 'none',
     background: 'transparent',

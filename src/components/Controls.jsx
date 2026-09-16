@@ -2,18 +2,20 @@ import { motion } from 'framer-motion'
 import { playSound } from '../sounds'
 import { ArrowLeft, Maximize2 } from 'lucide-react'
 
-export default function Controls({ onBack, onFullscreen }) {
+export default function Controls({ showBack = true, onBack, onFullscreen }) {
   return (
     <div style={styles.controls}>
-      <motion.button
-        style={styles.btn}
-        onClick={() => { playSound('back'); onBack() }}
-        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
-        whileTap={{ scale: 0.9 }}
-        title="Back to landing"
-      >
-        <ArrowLeft size={16} />
-      </motion.button>
+      {showBack && (
+        <motion.button
+          style={styles.btn}
+          onClick={() => { playSound('back'); onBack() }}
+          whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
+          whileTap={{ scale: 0.9 }}
+          title="Back to landing"
+        >
+          <ArrowLeft size={16} />
+        </motion.button>
+      )}
       <motion.button
         style={styles.btn}
         onClick={() => { playSound('fullscreen'); onFullscreen() }}

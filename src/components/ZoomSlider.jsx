@@ -44,9 +44,11 @@ export default function ZoomSlider({ zoom, onZoom }) {
   const onKeyDown = (e) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
       e.preventDefault()
+      playSound('zoom')
       onZoom(Math.min(MAX, zoom + (MAX - MIN) / STEPS))
     } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
       e.preventDefault()
+      playSound('zoom')
       onZoom(Math.max(MIN, zoom - (MAX - MIN) / STEPS))
     } else if (e.key === 'Home') {
       e.preventDefault()
@@ -63,7 +65,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
     <div style={styles.wrapper}>
       <motion.button
         style={{ ...styles.btn, opacity: zoom >= MAX ? 0.35 : 1 }}
-        onClick={() => { playSound('fullscreen'); onZoom(Math.min(MAX, zoom + (MAX - MIN) / STEPS)) }}
+        onClick={() => { playSound('zoom'); onZoom(Math.min(MAX, zoom + (MAX - MIN) / STEPS)) }}
         whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
         whileTap={{ scale: 0.9 }}
         title="Zoom in"
@@ -102,7 +104,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
 
       <motion.button
         style={{ ...styles.btn, opacity: zoom <= MIN ? 0.35 : 1 }}
-        onClick={() => { playSound('fullscreen'); onZoom(Math.max(MIN, zoom - (MAX - MIN) / STEPS)) }}
+        onClick={() => { playSound('zoom'); onZoom(Math.max(MIN, zoom - (MAX - MIN) / STEPS)) }}
         whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
         whileTap={{ scale: 0.9 }}
         title="Zoom out"
@@ -124,6 +126,7 @@ const styles = {
     background: 'rgba(15, 15, 25, 0.4)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
+    transform: 'scale(0.9)',
     border: '1px solid rgba(255,255,255,0.12)',
   },
   btn: {

@@ -18,7 +18,7 @@ const projects = [
     category: 'Blockchain · Web3',
     tech: ['React', 'JavaScript', 'Next.js', 'Ethers.js', 'Solidity', 'Ethereum'],
     image: cfImg, // e.g. '/projects/crowdfunding.png'
-    link: '', // deployed site URL — opens in a new tab
+    link: 'https://crowdfund-dapp-ruby.vercel.app/', // deployed site URL — opens in a new tab
     gradient: 'linear-gradient(135deg, #a855f7, #6366f1)',
     bullets: [
       'Decentralized crowdfunding platform using Ethereum smart contracts for transparent fundraising and automated fund management.',
@@ -31,7 +31,7 @@ const projects = [
     category: 'Full-Stack · Real-Time',
     tech: ['React', 'JavaScript', 'Next.js', 'Node.js', 'Python', 'MongoDB', 'WebSockets'],
     image: dfImg, // full-bleed card background
-    link: '', // deployed site URL — opens in a new tab
+    link: 'https://devflow-nine-chi.vercel.app/', // deployed site URL — opens in a new tab
     gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
     bullets: [
       'Full-stack project management and collaboration platform for managing projects, tasks, issues, milestones and development workflows.',
@@ -199,23 +199,25 @@ export default function ProjectCards({ expanded, onHoverProject }) {
 
             {/* Tech + title — bottom */}
             <div style={styles.cardBottom}>
-             
+
               <div style={styles.titleRow}>
-                <h3 style={styles.cardTitle}>{project.title}</h3>
-                {project.link && (
-                  <motion.button
-                    style={styles.linkBtn}
-                    onClick={() => window.open(project.link, '_blank', 'noopener,noreferrer')}
-                    whileHover={{ scale: 1.12, backgroundColor: 'rgba(255,255,255,0.22)' }}
-                    whileTap={{ scale: 0.92 }}
-                    title="Open deployed site"
-                    aria-label={`Open ${project.title} deployed site`}
-                  >
-                    <ExternalLink size={14} />
-                  </motion.button>
-                )}
+                <h3 style={{ ...styles.cardTitle, ...(project.link ? { paddingRight: 44 } : {}) }}>{project.title}</h3>
               </div>
             </div>
+
+            {/* Link button — pinned to bottom-right corner */}
+            {project.link && (
+              <motion.button
+                style={styles.linkBtn}
+                onClick={() => window.open(project.link, '_blank', 'noopener,noreferrer')}
+                whileHover={{ scale: 1.12, backgroundColor: 'rgba(255,255,255,0.22)' }}
+                whileTap={{ scale: 0.92 }}
+                title="Open deployed site"
+                aria-label={`Open ${project.title} deployed site`}
+              >
+                <ExternalLink size={18} />
+              </motion.button>
+            )}
           </div>
         </TiltCard>
       ))}
@@ -228,6 +230,7 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: 12,
+  
   },
   gridExpanded: {
     gap: 16,
@@ -240,7 +243,6 @@ const styles = {
     minHeight: 220,
     display: 'flex',
     willChange: 'transform',
-    transformStyle: 'preserve-3d',
   },
   cardBackground: {
     position: 'absolute',
@@ -301,7 +303,6 @@ const styles = {
   titleRow: {
     display: 'flex',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
     gap: 8,
   },
   cardTitle: {
@@ -310,10 +311,14 @@ const styles = {
     color: '#fff',
     lineHeight: 1.35,
     margin: 0,
-  },  
+  },
   linkBtn: {
-    width: 28,
-    height: 28,
+    position: 'absolute',
+    right: 14,
+    bottom: 14,
+    zIndex: 2,
+    width: 38,
+    height: 38,
     borderRadius: '50%',
     border: '1px solid rgba(255,255,255,0.2)',
     background: 'rgba(255,255,255,0.12)',

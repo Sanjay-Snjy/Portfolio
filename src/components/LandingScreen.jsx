@@ -51,8 +51,6 @@ export default function LandingScreen({ onEnter }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          onClick={handleClick}
-          style={{ cursor: 'pointer' }}
         >
           <motion.div
             className="landing-btn-area"
@@ -63,6 +61,7 @@ export default function LandingScreen({ onEnter }) {
 
             <motion.button
               className="landing-btn glass-panel-dark"
+              onClick={handleClick}
               style={{
                 transform: `perspective(800px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`,
                 display: 'flex',
@@ -76,6 +75,8 @@ export default function LandingScreen({ onEnter }) {
               <img src="/profile.jpeg" alt="Profile" style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }} />
               <span>Portfolio</span>
             </motion.button>
+
+            <div className="landing-hint">Click to enter</div>
           </motion.div>
         </motion.div>
       ) : (

@@ -145,7 +145,7 @@ export default function ContactSection() {
             id="contact-message"
             required
             placeholder=" "
-            rows={5}
+            rows={10}
             value={form.message}
             onChange={update('message')}
             disabled={status === STATUS.sending}
@@ -167,26 +167,6 @@ export default function ContactSection() {
             {!status || (status === STATUS.idle && <Send size={16} />)}
             <span>{statusLabel[status] || 'Send'}</span>
           </motion.button>
-
-          {socials.length > 0 && (
-            <div className="contact-socials">
-              {socials.map((s) => (
-                <motion.a
-                  key={s.id}
-                  href={s.href}
-                  target={s.href.startsWith('http') ? '_blank' : undefined}
-                  rel="noopener noreferrer"
-                  className="contact-social"
-                  title={s.label}
-                  aria-label={s.label}
-                  whileHover={{ scale: 1.12, y: -2 }}
-                  whileTap={{ scale: 0.92 }}
-                >
-                  <s.Icon size={16} />
-                </motion.a>
-              ))}
-            </div>
-          )}
         </div>
       </form>
     </div>
