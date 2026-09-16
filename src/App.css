@@ -121,7 +121,6 @@
 .glass-panel-dark {
   background:  rgba(3, 3, 3, 0.085);
   backdrop-filter: blur(50px) saturate(120%);
-  -webkit-backdrop-filter: blur(50px) saturate(120%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 30px;
   box-shadow:

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
+import { enableGyro } from '../gyro'
 
 export default function Scene3D() {
   const containerRef = useRef(null)
@@ -15,7 +16,14 @@ export default function Scene3D() {
     const x = (clientX / innerWidth - 0.5) * 2
     const y = (clientY / innerHeight - 0.5) * 2
 
-    // Parallax transforms — background shifts opposite to cursor for depth
+    applyParallax(x, y)
+  }, [])
+
+  /* Shared transform pipeline — mouse and gyro both feed this */
+  const applyParallax = useCallback((x, y) => {
+    if (!bgRef.current) return
+
+    // Parallax transforms — background shifts opposite to input for depth
     // X-axis tuned for panorama: big horizontal drift + rotateY sweep
     const translateX = x * -180
     const translateY = y * -14
@@ -26,6 +34,40 @@ export default function Scene3D() {
     bgRef.current.style.transform =
       `translate(${translateX}px, ${translateY}px) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
   }, [])
+
+  /* ── Gyroscopic parallax (mobile) ──
+     Tilt left/right pans the panorama, same pipeline as the mouse. */
+  useEffect(() => {
+    let raf = null
+    let pending = null
+
+    const onOrientation = (e) => {
+      if (e.gamma == null || e.beta == null) return
+      if (pending) return // throttle to one event per frame
+      pending = e
+      raf = requestAnimationFrame(() => {
+        const { gamma, beta } = pending
+        pending = null
+        // gamma: -90..90 (left/right tilt), beta: -180..180 (front/back tilt)
+        // Clamp to a comfortable range and normalize to -1..1
+        const x = Math.max(-1, Math.min(1, gamma / 30))
+        const y = Math.max(-1, Math.min(1, (beta - 45) / 30))
+        applyParallax(x, y)
+      })
+    }
+
+    let removed = false
+    enableGyro().then((granted) => {
+      if (!granted || removed) return
+      window.addEventListener('deviceorientation', onOrientation)
+    })
+
+    return () => {
+      removed = true
+      window.removeEventListener('deviceorientation', onOrientation)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [applyParallax])
 
   useEffect(() => {
     const handleMove = (e) => {

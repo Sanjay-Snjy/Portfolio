@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { playSound } from '../sounds'
 import { motion, AnimatePresence } from 'framer-motion'
+import { enableGyro } from '../gyro'
 
 export default function LandingScreen({ onEnter }) {
   const [exiting, setExiting] = useState(false)
@@ -35,6 +36,7 @@ export default function LandingScreen({ onEnter }) {
 
   const handleClick = () => {
     playSound('landing')
+    enableGyro() // iOS needs this user gesture to grant motion sensors — no-op elsewhere
     setExiting(true)
     setTimeout(() => onEnter(), 700)
   }
