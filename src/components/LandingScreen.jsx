@@ -79,6 +79,8 @@ export default function LandingScreen({ onEnter }) {
             </motion.button>
 
             <div className="landing-hint">Click to enter</div>
+
+            <div className="landing-wip">Portfolio currently under development — More soon.</div>
           </motion.div>
         </motion.div>
       ) : (
