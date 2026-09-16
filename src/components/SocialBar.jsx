@@ -12,7 +12,7 @@ export default function SocialBar() {
   return (
     <motion.div
       style={styles.bar}
-      className="glass-panel"
+      className="glass-panel-dark"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.6 }}
@@ -48,7 +48,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 12,
-    padding: '13px 18px',
+    padding: '8px 18px',
     borderRadius: 50,
     border: 'none',
     background: 'transparent',
