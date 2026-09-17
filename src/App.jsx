@@ -1,14 +1,11 @@
-import { useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Scene3D from './components/Scene3D'
 import NavBar from './components/NavBar'
-import ProjectCards from './components/ProjectCards'
-import TechStack from './components/TechStack'
 import NotesPanel from './components/NotesPanel'
 import SocialBar from './components/SocialBar'
 import Controls from './components/Controls'
 import Home from './components/Home'
-import ContactSection from './components/ContactSection'
 import CursorOrb from './components/CursorOrb'
 import LandingScreen from './components/LandingScreen'
 import ZoomSlider from './components/ZoomSlider'
@@ -16,6 +13,14 @@ import { TiltProvider, TiltLayer } from './components/TiltContext'
 import { education } from './data/content'
 import { MousePointer2 } from 'lucide-react'
 import './App.css'
+
+/* Home is the default view, so it stays in the initial chunk. The other, much
+   heavier views are split out — the landing screen and HUD shell no longer wait
+   on code a visitor may never open. They are prefetched once the browser is
+   idle, so navigating to them is still instant. */
+const ProjectCards = lazy(() => import('./components/ProjectCards'))
+const TechStack = lazy(() => import('./components/TechStack'))
+const ContactSection = lazy(() => import('./components/ContactSection'))
 
 const sections = ['Home', 'Projects', 'Tech Stack', 'Education', 'Contact']
 
@@ -46,6 +51,22 @@ function AppInner() {
   }, [])
 
   const handleCloseNotes = useCallback(() => setShowNotes(false), [])
+
+  /* Pull the deferred section chunks in once the main thread is free, so the
+     first paint is never gated on them but navigation stays instant. */
+  useEffect(() => {
+    const prefetch = () => {
+      import('./components/ProjectCards')
+      import('./components/TechStack')
+      import('./components/ContactSection')
+    }
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(prefetch, { timeout: 2500 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const id = setTimeout(prefetch, 1500)
+    return () => clearTimeout(id)
+  }, [])
 
   return (
     <div className="app" style={{ cursor: 'none' }}>
@@ -109,6 +130,7 @@ function AppInner() {
 
           {/* ── Center Content ── (no tilt — stays flat) */}
           <div className="center-content glass-panel-dark">
+            <Suspense fallback={null}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection}
@@ -155,6 +177,7 @@ function AppInner() {
                 {activeSection === 'Contact' && <ContactSection />}
               </motion.div>
             </AnimatePresence>
+            </Suspense>
           </div>
 
           {/* ── Right Notes Panel ── */}

@@ -175,6 +175,11 @@ function TiltCard({ children, onHover, index }) {
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      /* If the pointer lands while the entrance animation is still running, the
+         rect captured on enter is the mid-animation one — refresh it at the end. */
+      onAnimationEnd={(e) => {
+        if (e.target === cardRef.current) measure()
+      }}
       style={{
         ...styles.card,
         '--card-i': index,
