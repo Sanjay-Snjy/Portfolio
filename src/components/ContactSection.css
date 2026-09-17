@@ -96,7 +96,11 @@
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.45);
   pointer-events: none;
-  transition: all 0.2s ease;
+  transition:
+    top 0.2s ease,
+    font-size 0.2s ease,
+    letter-spacing 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Float the label up when focused or filled */

@@ -1,7 +1,10 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 
-/* ── Home page: profile intro card ── */
-export default function Home() {
+/* ── Home page: profile intro card ──
+   Takes no props, so memoising it keeps it out of every parent re-render
+   (including each frame of a zoom-slider drag). */
+function Home() {
   return (
     <motion.div
       className="glass-panela"
@@ -13,6 +16,8 @@ export default function Home() {
     </motion.div>
   )
 }
+
+export default memo(Home)
 
 const styles = {
   card: {

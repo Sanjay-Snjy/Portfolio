@@ -27,6 +27,40 @@
   pointer-events: auto;
 }
 
+/* ── Enter / exit fade ───────────────────────────────
+   Applied to the individual surfaces instead of the container. Fading the
+   container would put an `opacity < 1` ancestor above the glass panels, and
+   that creates a backdrop root — the panels would have no backdrop to blur
+   until the fade finished, which is exactly what "the blur shows up late"
+   looked like. Each surface fades its own composited layer, so the frosted
+   look is correct from the very first frame. */
+.hud-overlay .center-content {
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hud-overlay.is-entered .center-content {
+  opacity: 1;
+}
+
+/* Tilt layers keep their own transform easing alongside the fade. */
+.hud-overlay .tilt-layer {
+  opacity: 0;
+  transition:
+    transform 0.12s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hud-overlay .tilt-layer--static {
+  transition:
+    transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hud-overlay.is-entered .tilt-layer {
+  opacity: 1;
+}
+
 /* ── Top Controls ────────────────────────────────── */
 .top-controls {
   position: absolute;
@@ -93,6 +127,26 @@
   display: none; /* Chrome, Safari, Edge */
 }
 
+/* Card entrance. A CSS animation replaces the framer-motion variants so the
+   card's transform is owned by the tilt code, not two animators at once.
+   `backwards` fill holds the hidden state through the stagger delay and then
+   releases the transform once the card is in. */
+.project-card {
+  animation: projectCardIn 0.4s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+  animation-delay: calc(var(--card-i, 0) * 80ms);
+}
+
+@keyframes projectCardIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 .home-view {
   display: flex;
   flex-direction: column;
@@ -105,6 +159,34 @@
 }
 
 
+
+/* ══════════════════════════════════════════════════
+   Spatial tilt layer
+   The transform is composed here from --tilt-x / --tilt-y, which the tilt
+   engine rewrites each frame. Because only a custom property changes, the
+   browser just recomposites a transform — no layout, no paint, and no React
+   render. Defaults are declared so the layer still renders if the engine is
+   off (mobile / reduced motion).
+   ══════════════════════════════════════════════════ */
+:root {
+  --tilt-x: 0;
+  --tilt-y: 0;
+}
+
+.tilt-layer {
+  transform:
+    perspective(var(--tl-persp, 1200px))
+    translateZ(var(--tl-z, 0px))
+    rotateY(calc(var(--tl-base-y, 0deg) + var(--tilt-x, 0) * var(--tl-infl-x, 1) * 1deg))
+    rotateX(calc(var(--tl-base-x, 0deg) + var(--tilt-y, 0) * var(--tl-infl-y, 1) * 1deg));
+  transition: transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* Mobile: no pointer influence, gentler easing. */
+.tilt-layer--static {
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
 
 /* ── Glass Panel Base ────────────────────────────── */
 .glass-panel {
@@ -213,7 +295,9 @@
   padding: 14px 16px 14px 18px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.058);
-  backdrop-filter: blur(20px) saturate(180%);
+  /* No backdrop-filter here: this row sits inside .center-content, which
+     already blurs the scene. A second nested backdrop-filter would force an
+     extra render pass per row for a visually identical result. */
 }
 
 .education-dot {
@@ -502,3 +586,40 @@
 /* ══════════════════════════════════════════════════════════════
    LARGE VIEW (>= 768px) — unchanged, kept as reference
    ══════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   ACCESSIBILITY — reduced motion
+   Keeps every control and all content, but stops the decorative
+   spatial drift and looping ambient animation so the interface is
+   comfortable for motion-sensitive users (and cheaper to render).
+   ══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  /* Freeze the parallax tilt layers at their resting angle. */
+  .tilt-layer {
+    --tl-infl-x: 0 !important;
+    --tl-infl-y: 0 !important;
+    transition: none;
+    will-change: auto;
+  }
+
+  /* Stop ambient/looping decoration. */
+  .landing-glow-1,
+  .landing-hint,
+  .focus-hint {
+    animation: none;
+  }
+
+  .landing-hint {
+    opacity: 1;
+  }
+
+  /* Long, decorative transitions become instant. */
+  .hud-overlay,
+  .tilt-layer,
+  .chip,
+  .contact-field input,
+  .contact-field textarea,
+  .contact-field label {
+    transition-duration: 0.01ms !important;
+  }
+}

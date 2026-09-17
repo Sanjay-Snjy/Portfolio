@@ -1,9 +1,10 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import TechGlyph from './TechGlyph'
 import { stack, stackGroups } from '../data/content'
 
-export default function NotesPanel({ onClose, activeTech, activeSection, hoveredProject }) {
+function NotesPanel({ onClose, activeTech, activeSection, hoveredProject }) {
   const byId = Object.fromEntries(stack.map((t) => [t.id, t]))
   const active = activeTech ? byId[activeTech] : null
   const relatedNames = active
@@ -187,6 +188,8 @@ export default function NotesPanel({ onClose, activeTech, activeSection, hovered
   )
 }
 
+export default memo(NotesPanel)
+
 const styles = {
   panel: {
     width: 280,
@@ -229,7 +232,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s',
+    transition: 'transform 0.2s ease, background-color 0.2s ease, color 0.2s ease',
   },
   content: {
     padding: '16px 18px',

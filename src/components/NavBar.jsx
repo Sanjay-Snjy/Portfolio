@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { playSound } from '../sounds'
 import {
@@ -16,7 +17,7 @@ const icons = {
   Contact: Mail,
 }
 
-export default function NavBar({ sections, active, onNavigate }) {
+function NavBar({ sections, active, onNavigate }) {
   return (
     <div className="navbar" style={styles.navbar}>
       {sections.map((section) => {
@@ -61,6 +62,10 @@ export default function NavBar({ sections, active, onNavigate }) {
     </div>
   )
 }
+
+/* Props are all primitives or stable callbacks, so re-renders only happen when
+   the active section actually changes. */
+export default memo(NavBar)
 
 const styles = {
   navbar: {

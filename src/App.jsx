@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Scene3D from './components/Scene3D'
 import NavBar from './components/NavBar'
@@ -29,7 +29,7 @@ function AppInner() {
   const [entered, setEntered] = useState(false)
   const [zoom, setZoom] = useState(0.88)
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen()
       setIsFullscreen(true)
@@ -37,7 +37,15 @@ function AppInner() {
       document.exitFullscreen()
       setIsFullscreen(false)
     }
-  }
+  }, [])
+
+  /* Stable identities so the memoised panels below can skip re-rendering. */
+  const handleNavigate = useCallback((s) => {
+    setActiveSection(s)
+    setActiveTechId(null)
+  }, [])
+
+  const handleCloseNotes = useCallback(() => setShowNotes(false), [])
 
   return (
     <div className="app" style={{ cursor: 'none' }}>
@@ -66,13 +74,16 @@ function AppInner() {
         <ZoomSlider zoom={zoom} onZoom={setZoom} />
       </div>
 
-      {/* HUD overlay — zoom + tilt on scroll */}
+      {/* HUD overlay — zoom + tilt on scroll.
+          The enter/exit fade deliberately lives on the panels themselves (via
+          .is-entered) rather than as an opacity on this container: an ancestor
+          with opacity < 1 becomes a backdrop root, which would leave the glass
+          panels with nothing behind them to blur for the whole fade. */}
       <div
-        className="hud-overlay"
+        className={`hud-overlay${entered ? ' is-entered' : ''}`}
         style={{
-          opacity: entered ? 1 : 0,
           transform: `scale(${zoom})`,
-          transition: 'opacity 0.35s cubic-bezier(0.23, 1, 0.32, 1), transform 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
+          transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1)',
         }}
       >
 
@@ -91,7 +102,7 @@ function AppInner() {
             <NavBar
               sections={sections}
               active={activeSection}
-              onNavigate={(s) => { setActiveSection(s); setActiveTechId(null) }}
+              onNavigate={handleNavigate}
             />
           </TiltLayer>
           </div>
@@ -165,7 +176,7 @@ function AppInner() {
                   glass="dark"
                 >
                   <NotesPanel
-                    onClose={() => setShowNotes(false)}
+                    onClose={handleCloseNotes}
                     activeTech={activeTechId}
                     activeSection={activeSection}
                     hoveredProject={hoveredProject}
@@ -189,15 +200,17 @@ function AppInner() {
           </TiltLayer>
         </div>
 
-        {/* Focus hint */}
-        <motion.div
-          className="focus-hint"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5, duration: 0.8 }}
-        >
-          <MousePointer2 size={16} style={{ marginRight: 8, opacity: 0.7 }} />
-        </motion.div>
+        {/* Focus hint — decorative, only meaningful once inside the HUD */}
+        {entered && (
+          <motion.div
+            className="focus-hint"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5, duration: 0.8 }}
+          >
+            <MousePointer2 size={16} style={{ marginRight: 8, opacity: 0.7 }} />
+          </motion.div>
+        )}
       </div>
     </div>
   )

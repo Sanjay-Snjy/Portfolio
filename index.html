@@ -4,8 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
     <title>3D Portfolio — Vision Pro Style</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Font: open the connection during HTML parse instead of after JS boots,
+         and let the browser treat the stylesheet as non-render-blocking. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Critical above-the-fold art.
+         The frosted panels sample whatever is behind them — with a ~6.6MB hero
+         PNG loading late, they had nothing to blur, so the glass looked flat
+         for the first second. Starting the fetch during parse (high priority,
+         ahead of the app bundle) removes most of that dead window. -->
+    <link rel="preload" as="image" href="/bg6.png" fetchpriority="high" />
+    <link rel="preload" as="image" href="/bghome.png" />
   </head>
   <body>
     <div id="root"></div>

@@ -96,8 +96,17 @@
   color: rgb(255, 255, 255);
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(80px);
+  /* Explicit properties instead of `all`, so a stat change can't accidentally
+     start animating something expensive. */
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+  /* Deliberately no backdrop-filter: the chip sits inside .center-content,
+     which already blurs the scene behind it. A nested blur(80px) per chip
+     forced an extra render pass each frame for no visible gain. */
 }
 
 .chip__glyph {

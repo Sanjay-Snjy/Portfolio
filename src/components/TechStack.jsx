@@ -1,13 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TechGlyph from './TechGlyph';
 import { stack, stackGroups } from '../data/content';
 import './TechStack.css';
+
+/* Stable reference so clearing the wires is a no-op state update. */
+const EMPTY_LINES = [];
+
 
 /**
  * Interactive chip grid. Accepts activeId/setActiveId from parent
  * so the readout can live in NotesPanel.
  */
-export default function TechStack({ activeId, setActiveId, zoom }) {
+function TechStack({ activeId, setActiveId, zoom }) {
   const [lines, setLines] = useState([]);
   const wrapRef = useRef(null);
   const svgRef = useRef(null);
@@ -24,7 +28,9 @@ export default function TechStack({ activeId, setActiveId, zoom }) {
     const wrap = wrapRef.current;
     const svg = svgRef.current;
     if (!wrap || !svg || !activeId) {
-      setLines([]);
+      /* Reuse the existing empty array when there is nothing to draw so this
+         doesn't queue a state update on every zoom tick. */
+      setLines((prev) => (prev.length === 0 ? prev : EMPTY_LINES));
       return;
     }
     const origin = chipRefs.current[activeId];
@@ -43,7 +49,7 @@ export default function TechStack({ activeId, setActiveId, zoom }) {
     };
 
     const from = centre(origin);
-    const next = (byId[activeId].related || [])
+    const next = (byId[activeId]?.related || [])
       .map((rid) => chipRefs.current[rid])
       .filter(Boolean)
       .map((el) => {
@@ -53,11 +59,8 @@ export default function TechStack({ activeId, setActiveId, zoom }) {
     setLines(next);
   }, [activeId, byId]);
 
-  useEffect(() => {
-    measure();
-  }, [measure]);
-
-  /* Re-measure when the zoom slider moves so wires stay correct mid-transform */
+  /* Measure once, and again whenever the zoom slider moves so the wires stay
+     anchored to the chips mid-transform. */
   useEffect(() => {
     measure();
   }, [measure, zoom]);
@@ -134,3 +137,14 @@ export default function TechStack({ activeId, setActiveId, zoom }) {
     </div>
   );
 }
+
+/* `zoom` only matters while a chip is selected (it decides where the wires
+   land). Ignoring it otherwise keeps the whole chip grid out of the re-render
+   path while the zoom slider is being dragged. */
+function arePropsEqual(prev, next) {
+  if (prev.activeId !== next.activeId) return false
+  if (!next.activeId) return true
+  return prev.zoom === next.zoom;
+}
+
+export default memo(TechStack, arePropsEqual);

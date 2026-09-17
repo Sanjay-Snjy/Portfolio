@@ -58,7 +58,7 @@ const styles = {
     fontWeight: 400,
     cursor: 'pointer',
     fontFamily: 'inherit',
-    transition: 'all 0.2s',
+    transition: 'transform 0.2s ease, background-color 0.2s ease, color 0.2s ease',
   },
   label: {
     fontSize: '0.82rem',

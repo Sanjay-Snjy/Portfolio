@@ -45,7 +45,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s',
+    transition: 'transform 0.2s ease, background-color 0.2s ease',
     fontFamily: 'inherit',
   },
 }

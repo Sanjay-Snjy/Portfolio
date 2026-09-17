@@ -6,6 +6,8 @@ import { Plus, Minus } from 'lucide-react'
 const MIN = 0.4
 const MAX = 1.15
 const STEPS = 100
+/* Track is a fixed 160px tall, bottom-anchored bar. */
+const TRACK_H = 160
 
 function toPercent(z) {
   return ((z - MIN) / (MAX - MIN)) * 100
@@ -13,32 +15,68 @@ function toPercent(z) {
 
 export default function ZoomSlider({ zoom, onZoom }) {
   const trackRef = useRef(null)
+  const rectRef = useRef(null)
+  const pendingYRef = useRef(null)
+  const rafRef = useRef(0)
   const [dragging, setDragging] = useState(false)
 
-  const setFromClientY = useCallback(
+  const commit = useCallback(
     (clientY) => {
-      const track = trackRef.current
-      if (!track) return
-      const rect = track.getBoundingClientRect()
-      const ratio = 1 - (clientY - rect.top) / rect.height
-      const clamped = Math.min(1, Math.max(0, ratio))
-      onZoom(MIN + clamped * (MAX - MIN))
+      pendingYRef.current = clientY
+      /* At most one zoom update per frame. A raw pointermove stream in React
+         state used to re-render the whole app on every single event. */
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        const y = pendingYRef.current
+        const rect = rectRef.current
+        if (y == null || !rect || !rect.height) return
+        const ratio = 1 - (y - rect.top) / rect.height
+        const clamped = Math.min(1, Math.max(0, ratio))
+        onZoom(MIN + clamped * (MAX - MIN))
+      })
     },
-    [onZoom]
+    [onZoom],
+  )
+
+  const beginDrag = useCallback(
+    (clientY) => {
+      if (trackRef.current) rectRef.current = trackRef.current.getBoundingClientRect()
+      setDragging(true)
+      commit(clientY)
+    },
+    [commit],
   )
 
   /* While dragging, listen on window so the cursor can leave the track */
   useEffect(() => {
-    if (!dragging) return
-    const onMove = (e) => setFromClientY(e.clientY)
+    if (!dragging) return undefined
+    const onMove = (e) => commit(e.clientY)
     const onUp = () => setDragging(false)
-    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
     return () => {
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
     }
-  }, [dragging, setFromClientY])
+  }, [dragging, commit])
+
+  /* The track is fixed to the viewport corner; only a resize can move it. */
+  useEffect(() => {
+    const remeasure = () => {
+      if (dragging && trackRef.current) {
+        rectRef.current = trackRef.current.getBoundingClientRect()
+      }
+    }
+    window.addEventListener('resize', remeasure)
+    return () => window.removeEventListener('resize', remeasure)
+  }, [dragging])
+
+  useEffect(() => () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+  }, [])
 
   /* Keyboard accessibility */
   const onKeyDown = (e) => {
@@ -84,8 +122,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
         tabIndex={0}
         onPointerDown={(e) => {
           e.preventDefault()
-          setDragging(true)
-          setFromClientY(e.clientY)
+          beginDrag(e.clientY)
         }}
         onKeyDown={onKeyDown}
         style={{
@@ -95,11 +132,16 @@ export default function ZoomSlider({ zoom, onZoom }) {
             : '0 4px 20px rgba(0,0,0,0.3)',
         }}
       >
-        {/* Filled portion (bottom = min zoom, top = max zoom) */}
-        <div style={{ ...styles.fill, height: `${pct}%` }} />
+        {/* Filled portion — height is fixed and scaled, so no layout runs */}
+        <div style={{ ...styles.fill, transform: `scaleY(${pct / 100})` }} />
 
-        {/* Draggable thumb */}
-        <div style={{ ...styles.thumb, bottom: `${pct}%` }} />
+        {/* Draggable thumb — positioned purely by transform */}
+        <div
+          style={{
+            ...styles.thumb,
+            transform: `translate(-50%, 50%) translateY(${-(pct / 100) * TRACK_H}px)`,
+          }}
+        />
       </div>
 
       <motion.button
@@ -140,14 +182,14 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s',
+    transition: 'transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease',
     fontFamily: 'inherit',
     flexShrink: 0,
   },
   track: {
     position: 'relative',
     width: 8,
-    height: 160,
+    height: TRACK_H,
     borderRadius: 999,
     background: 'rgba(255,255,255,0.1)',
     border: '1px solid rgba(255,255,255,0.1)',
@@ -161,19 +203,23 @@ const styles = {
     bottom: 0,
     left: 0,
     right: 0,
+    height: '100%',
     borderRadius: 999,
     background: '#ffffff81',
-    transition: 'height 0.05s linear',
+    transformOrigin: 'bottom',
+    transition: 'transform 0.05s linear',
+    willChange: 'transform',
   },
   thumb: {
     position: 'absolute',
     left: '50%',
+    bottom: 0,
     width: 16,
     height: 16,
     borderRadius: '50%',
     background: '#fff',
-    transform: 'translate(-50%, 50%)',
     boxShadow: '0 2px 10px rgba(0,0,0,0.5), 0 0 0 3px rgba(139,92,246,0.35)',
     cursor: 'grab',
+    willChange: 'transform',
   },
 }

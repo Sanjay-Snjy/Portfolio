@@ -1,61 +1,85 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function CursorOrb() {
   const orbRef = useRef(null)
   const glowRef = useRef(null)
   const [visible, setVisible] = useState(false)
+  const visibleRef = useRef(false)
 
   useEffect(() => {
-    // Smooth cursor position with lerp
+    // Touch devices have no cursor to follow — don't run anything at all.
+    if (window.matchMedia('(hover: none)').matches) return undefined
+
     let mouseX = 0
     let mouseY = 0
     let orbX = 0
     let orbY = 0
-    let rafId = null
+    let rafId = 0
+    let running = false
 
-    const onMouseMove = (e) => {
-      mouseX = e.clientX
-      mouseY = e.clientY
-      if (!visible) setVisible(true)
-    }
-
-    const onMouseLeave = () => setVisible(false)
-    const onMouseEnter = () => setVisible(true)
-
-    const animate = () => {
-      // Lerp for smooth follow (lower = slower, more floaty)
-      const lerp = 0.12
-      orbX += (mouseX - orbX) * lerp
-      orbY += (mouseY - orbY) * lerp
+    const tick = () => {
+      orbX += (mouseX - orbX) * 0.12
+      orbY += (mouseY - orbY) * 0.12
 
       if (orbRef.current) {
-        orbRef.current.style.transform = `translate(${orbX - 16}px, ${orbY - 16}px)`
+        orbRef.current.style.transform = `translate3d(${orbX - 16}px, ${orbY - 16}px, 0)`
       }
       if (glowRef.current) {
-        // Glow trails slightly behind for a trailing effect
-        const glowLerp = 0.06
-        glowRef.current.style.transform = `translate(${orbX - 40}px, ${orbY - 40}px)`
+        glowRef.current.style.transform = `translate3d(${orbX - 40}px, ${orbY - 40}px, 0)`
       }
 
-      rafId = requestAnimationFrame(animate)
+      /* Settled on the pointer — stop requesting frames until it moves again.
+         Previously this loop ran forever, even with the mouse untouched. */
+      if (Math.abs(mouseX - orbX) < 0.2 && Math.abs(mouseY - orbY) < 0.2) {
+        running = false
+        return
+      }
+      rafId = requestAnimationFrame(tick)
     }
 
-    window.addEventListener('mousemove', onMouseMove)
+    const start = () => {
+      if (running) return
+      running = true
+      rafId = requestAnimationFrame(tick)
+    }
+
+    const onMouseMove = (e) => {
+      if (e.pointerType !== 'mouse') return
+      mouseX = e.clientX
+      mouseY = e.clientY
+      if (!visibleRef.current) {
+        visibleRef.current = true
+        setVisible(true)
+      }
+      start()
+    }
+
+    const onMouseLeave = () => {
+      visibleRef.current = false
+      setVisible(false)
+    }
+    const onMouseEnter = () => {
+      visibleRef.current = true
+      setVisible(true)
+    }
+
+    window.addEventListener('pointermove', onMouseMove, { passive: true })
     document.addEventListener('mouseleave', onMouseLeave)
     document.addEventListener('mouseenter', onMouseEnter)
-    rafId = requestAnimationFrame(animate)
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('pointermove', onMouseMove)
       document.removeEventListener('mouseleave', onMouseLeave)
       document.removeEventListener('mouseenter', onMouseEnter)
       if (rafId) cancelAnimationFrame(rafId)
     }
-  }, [visible])
+    /* Intentionally empty deps: `visible` used to be a dependency, so the very
+       first mouse move tore down and rebuilt the listeners and the loop. */
+  }, [])
 
   return (
     <>
-      {/* Outer glow — large, soft, trails behind */}
+      {/* Outer glow — large, soft */}
       <div
         ref={glowRef}
         style={{
@@ -83,12 +107,12 @@ const styles = {
     width: 80,
     height: 80,
     borderRadius: '50%',
-  
     pointerEvents: 'none',
     zIndex: 9998,
     transition: 'opacity 0.4s ease',
     willChange: 'transform',
-    filter: 'blur(4px)',
+    /* No background paint and no filter: this element is a transparent
+       placeholder, so a blur filter here only cost a composited layer. */
   },
   orb: {
     position: 'fixed',

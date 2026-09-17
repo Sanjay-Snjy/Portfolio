@@ -6,57 +6,73 @@ export default function Scene3D() {
   const bgRef = useRef(null)
   const [loaded, setLoaded] = useState(false)
 
-  const handleMouseMove = useCallback((e) => {
-    if (!containerRef.current || !bgRef.current) return
+  /* ── One frame at a time ──
+     Input (mouse or gyro) only records the newest coordinates and asks for a
+     single animation frame. The previous version requested a frame from every
+     raw event, so a fast mouse queued several redundant frames per rendered
+     frame. When input stops, no frames are scheduled at all. */
+  const pendingRef = useRef(null)
+  const rafRef = useRef(0)
 
-    const { clientX, clientY } = e
-    const { innerWidth, innerHeight } = window
-
-    // Normalized -1 to 1
-    const x = (clientX / innerWidth - 0.5) * 2
-    const y = (clientY / innerHeight - 0.5) * 2
-
-    applyParallax(x, y)
-  }, [])
-
-  /* Shared transform pipeline — mouse and gyro both feed this */
   const applyParallax = useCallback((x, y) => {
-    if (!bgRef.current) return
+    const bg = bgRef.current
+    if (!bg) return
 
-    // Parallax transforms — background shifts opposite to input for depth
-    // X-axis tuned for panorama: big horizontal drift + rotateY sweep
+    // X-axis tuned for the panorama: big horizontal drift + rotateY sweep
     const translateX = x * -180
     const translateY = y * -14
     const scale = 1.1 + Math.abs(x * y) * 0.02
     const rotateX = y * -2
     const rotateY = x * 6
 
-    bgRef.current.style.transform =
-      `translate(${translateX}px, ${translateY}px) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+    bg.style.transform =
+      `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale}) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
   }, [])
 
-  /* ── Gyroscopic parallax (mobile) ──
-     Tilt left/right pans the panorama, same pipeline as the mouse. */
+  const queue = useCallback(
+    (x, y) => {
+      pendingRef.current = [x, y]
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        const next = pendingRef.current
+        if (next) applyParallax(next[0], next[1])
+      })
+    },
+    [applyParallax],
+  )
+
+  /* ── Mouse parallax (desktop) ── */
   useEffect(() => {
-    let raf = null
-    let pending = null
+    const onMove = (e) => {
+      // Ignore touch/stylus so a finger drag never fights the gyro parallax.
+      if (e.pointerType && e.pointerType !== 'mouse') return
+      const x = (e.clientX / window.innerWidth - 0.5) * 2
+      const y = (e.clientY / window.innerHeight - 0.5) * 2
+      queue(x, y)
+    }
+
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
+  }, [queue])
+
+  /* ── Gyroscopic parallax (mobile) ──
+     Tilting the phone pans the panorama, through the same pipeline as the mouse. */
+  useEffect(() => {
+    let removed = false
 
     const onOrientation = (e) => {
       if (e.gamma == null || e.beta == null) return
-      if (pending) return // throttle to one event per frame
-      pending = e
-      raf = requestAnimationFrame(() => {
-        const { gamma, beta } = pending
-        pending = null
-        // gamma: -90..90 (left/right tilt), beta: -180..180 (front/back tilt)
-        // Clamp to a comfortable range and normalize to -1..1
-        const x = Math.max(-1, Math.min(1, gamma / 30))
-        const y = Math.max(-1, Math.min(1, (beta - 45) / 30))
-        applyParallax(x, y)
-      })
+      // gamma: -90..90 (left/right tilt), beta: -180..180 (front/back tilt)
+      const x = Math.max(-1, Math.min(1, e.gamma / 30))
+      const y = Math.max(-1, Math.min(1, (e.beta - 45) / 30))
+      queue(x, y)
     }
 
-    let removed = false
     enableGyro().then((granted) => {
       if (!granted || removed) return
       window.addEventListener('deviceorientation', onOrientation)
@@ -65,23 +81,11 @@ export default function Scene3D() {
     return () => {
       removed = true
       window.removeEventListener('deviceorientation', onOrientation)
-      if (raf) cancelAnimationFrame(raf)
     }
-  }, [applyParallax])
-
-  useEffect(() => {
-    const handleMove = (e) => {
-      requestAnimationFrame(() => handleMouseMove(e))
-    }
-    window.addEventListener('mousemove', handleMove)
-    return () => window.removeEventListener('mousemove', handleMove)
-  }, [handleMouseMove])
+  }, [queue])
 
   return (
-    <div
-      ref={containerRef}
-      style={styles.container}
-    >
+    <div ref={containerRef} style={styles.container}>
       {/* Background image with parallax */}
       <div
         ref={bgRef}
@@ -93,6 +97,8 @@ export default function Scene3D() {
         <img
           src="/bg6.png"
           alt=""
+          fetchPriority="high"
+          decoding="async"
           onLoad={() => setLoaded(true)}
           style={styles.img}
         />
@@ -100,8 +106,6 @@ export default function Scene3D() {
 
       {/* Subtle vignette overlay for depth */}
       <div style={styles.vignette} />
-
-   
     </div>
   )
 }
@@ -118,7 +122,9 @@ const styles = {
     // Wide horizontal bleed so the stronger x-axis drift/rotation never exposes edges
     position: 'absolute',
     inset: '-60px -320px',
-    transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.8s ease',
+    /* Short fade only. A long fade delays the moment the glass panels have
+       anything behind them to blur, which reads as "the blur arrives late". */
+    transition: 'transform 0.15s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.22s ease-out',
     willChange: 'transform',
     transformStyle: 'preserve-3d',
   },
@@ -132,18 +138,6 @@ const styles = {
     position: 'absolute',
     inset: 0,
     background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)',
-    pointerEvents: 'none',
-  },
-  particles: {
-    position: 'absolute',
-    inset: 0,
-    pointerEvents: 'none',
-  },
-  particle: {
-    position: 'absolute',
-    borderRadius: '50%',
-    background: 'rgba(255, 255, 255, 0.6)',
-    animation: 'floatParticle 24s ease-in-out infinite',
     pointerEvents: 'none',
   },
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Send, Mail, Check, AlertCircle } from 'lucide-react'
 import { playSound } from '../sounds'
@@ -36,7 +36,7 @@ const WEB3FORMS_KEY = 'd11d3270-cc7e-4161-972f-6049c0063a6c' // e.g. 'a1b2c3d4-5
 
 const STATUS = { idle: 'idle', sending: 'sending', sent: 'sent', error: 'error' }
 
-export default function ContactSection() {
+function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [status, setStatus] = useState(STATUS.idle)
 
@@ -172,3 +172,6 @@ export default function ContactSection() {
     </div>
   )
 }
+
+/* Takes no props — keep it off the parent's re-render path. */
+export default memo(ContactSection)

@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react'
+import { memo, useRef, useCallback, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 import dfImg from '../assets/DF.png'
@@ -69,61 +69,121 @@ const projects = [
 /* Exported so the Notes panel can read the same data */
 export const projectList = projects
 
-/* ── 3D Tilt Card ────────────────────────────────── */
-function TiltCard({ children, onHover }) {
+/* ── 3D Tilt Card ──────────────────────────────────
+   The tilt, its specular glare and the edge highlight are written straight to
+   the DOM inside a single animation frame. Previously each raw mousemove set
+   React state *and* called getBoundingClientRect(), so every pointer event
+   forced a synchronous layout plus a full re-render of the card. Only the
+   hover on/off transition touches React now (twice per interaction). */
+function TiltCard({ children, onHover, index }) {
   const cardRef = useRef(null)
   const glareRef = useRef(null)
-  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50, isHovering: false })
+  const edgeRef = useRef(null)
+  const rectRef = useRef(null)
+  const pointerRef = useRef({ x: 0, y: 0 })
+  const rafRef = useRef(0)
+  const [hovering, setHovering] = useState(false)
 
-  const handleMouseMove = useCallback((e) => {
-    if (!cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
+  /* Compose the tilt from the newest pointer position — one frame at a time. */
+  const paint = useCallback(() => {
+    const card = cardRef.current
+    const rect = rectRef.current
+    if (!card || !rect) return
 
-    // Tilt angles — max ±12 degrees
-    const rotateY = ((x - centerX) / centerX) * 12
-    const rotateX = ((centerY - y) / centerY) * -12
+    const nx = (pointerRef.current.x - rect.left) / rect.width
+    const ny = (pointerRef.current.y - rect.top) / rect.height
 
-    // Glare position
-    const glareX = (x / rect.width) * 100
-    const glareY = (y / rect.height) * 100
+    const rotateY = (nx - 0.5) * 24 // ±12deg
+    const rotateX = (0.5 - ny) * 24
 
-    setTilt({ rotateX, rotateY, glareX, glareY, isHovering: true })
+    card.style.transform =
+      `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.05, 1.05, 1.05)`
+
+    if (glareRef.current) {
+      // The speck of light is a fixed gradient moved by transform, so it
+      // composites instead of repainting the gradient every frame.
+      glareRef.current.style.transform =
+        `translate3d(${((nx - 0.5) * 50).toFixed(2)}%, ${((ny - 0.5) * 50).toFixed(2)}%, 0)`
+    }
+
+    if (edgeRef.current) {
+      edgeRef.current.style.boxShadow =
+        `inset ${((rotateY / 12) * 8).toFixed(2)}px ${((rotateX / -12) * 5).toFixed(2)}px 20px rgba(255,255,255,0.08)`
+    }
   }, [])
 
+  const measure = useCallback(() => {
+    if (cardRef.current) rectRef.current = cardRef.current.getBoundingClientRect()
+  }, [])
+
+  const handleMouseEnter = useCallback(
+    (e) => {
+      measure() // one layout read per hover, not per pointer event
+      pointerRef.current = { x: e.clientX, y: e.clientY }
+      paint()
+      setHovering(true)
+      onHover?.(true)
+    },
+    [measure, paint, onHover],
+  )
+
+  const handleMouseMove = useCallback(
+    (e) => {
+      pointerRef.current = { x: e.clientX, y: e.clientY }
+      if (!rectRef.current || rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        paint()
+      })
+    },
+    [paint],
+  )
+
   const handleMouseLeave = useCallback(() => {
-    setTilt({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50, isHovering: false })
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
+    rectRef.current = null
+
+    const card = cardRef.current
+    if (card) card.style.transform = RESTING_TRANSFORM
+    if (glareRef.current) glareRef.current.style.transform = 'translate3d(0, 0, 0)'
+    if (edgeRef.current) edgeRef.current.style.boxShadow = 'none'
+
+    setHovering(false)
     onHover?.(null)
   }, [onHover])
 
-  const transform = `perspective(800px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(${tilt.isHovering ? 1.05 : 1}, ${tilt.isHovering ? 1.05 : 1}, ${tilt.isHovering ? 1.05 : 1})`
+  /* A stale rect would put the tilt out of register, so re-measure whenever the
+     page or the inner scroller moves while the pointer is on the card. */
+  useEffect(() => {
+    if (!hovering) return undefined
+    const invalidate = () => measure()
+    window.addEventListener('resize', invalidate)
+    window.addEventListener('scroll', invalidate, true)
+    return () => {
+      window.removeEventListener('resize', invalidate)
+      window.removeEventListener('scroll', invalidate, true)
+    }
+  }, [hovering, measure])
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
+      className="project-card"
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onMouseEnter={() => onHover?.(true)}
-      variants={{
-        hidden: { opacity: 0, y: 20, scale: 0.95 },
-        show: {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] },
-        },
-      }}
       style={{
         ...styles.card,
-        transform,
-        transition: tilt.isHovering
+        '--card-i': index,
+        transform: RESTING_TRANSFORM,
+        transition: hovering
           ? 'transform 0.1s cubic-bezier(0.23, 1, 0.32, 1)'
           : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-        boxShadow: tilt.isHovering
-          ? `0 20px 60px rgba(171, 165, 165, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.25)`
+        boxShadow: hovering
+          ? '0 20px 60px rgba(171, 165, 165, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.25)'
           : '0 4px 20px rgba(0,0,0,0.3)',
       }}
     >
@@ -134,48 +194,39 @@ function TiltCard({ children, onHover }) {
         ref={glareRef}
         style={{
           ...styles.glare,
-          opacity: tilt.isHovering ? 0.35 : 0,
-          background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 40%, transparent 70%)`,
-          transition: tilt.isHovering ? 'opacity 0.15s ease' : 'opacity 0.4s ease',
+          opacity: hovering ? 0.35 : 0,
+          transition: hovering ? 'opacity 0.15s ease' : 'opacity 0.4s ease',
         }}
       />
 
       {/* Edge highlight for depth */}
       <div
+        ref={edgeRef}
         style={{
           ...styles.edgeHighlight,
-          opacity: tilt.isHovering ? 1 : 0,
-          boxShadow: `inset ${(tilt.rotateY / 12) * 8}px ${(tilt.rotateX / -12) * 5}px 20px rgba(255,255,255,0.08)`,
-          transition: tilt.isHovering ? 'opacity 0.15s ease' : 'opacity 0.4s ease',
+          opacity: hovering ? 1 : 0,
+          transition: hovering ? 'opacity 0.15s ease' : 'opacity 0.4s ease',
         }}
       />
-    </motion.div>
+    </div>
   )
 }
 
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.08,
-    },
-  },
-}
+const RESTING_TRANSFORM =
+  'perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
 
-export default function ProjectCards({ expanded, onHoverProject }) {
+function ProjectCards({ expanded, onHoverProject }) {
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
+    <div
       style={{
         ...styles.grid,
         ...(expanded ? styles.gridExpanded : {}),
       }}
     >
-      {projects.map((project) => (
+      {projects.map((project, i) => (
         <TiltCard
           key={project.id}
+          index={i}
           onHover={(entering) => onHoverProject?.(entering ? project : null)}
         >
           {/* Background: image if provided, otherwise gradient fallback */}
@@ -221,16 +272,20 @@ export default function ProjectCards({ expanded, onHoverProject }) {
           </div>
         </TiltCard>
       ))}
-    </motion.div>
+    </div>
   )
 }
+
+/* Re-rendering the cards is only needed when a hover actually changes, so the
+   whole grid stays out of parent re-renders (e.g. zoom-slider frames). */
+export default memo(ProjectCards)
 
 const styles = {
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: 12,
-  
+
   },
   gridExpanded: {
     gap: 16,
@@ -332,11 +387,15 @@ const styles = {
   },
   glare: {
     position: 'absolute',
-    inset: 0,
-    borderRadius: 18,
+    inset: '-50%',
+    borderRadius: '50%',
     pointerEvents: 'none',
     zIndex: 2,
     mixBlendMode: 'overlay',
+    willChange: 'transform',
+    /* Fixed gradient; the hotspot is aimed by translating the layer. */
+    background:
+      'radial-gradient(closest-side, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 45%, transparent 72%)',
   },
   edgeHighlight: {
     position: 'absolute',
