@@ -11,7 +11,7 @@ function NotesPanel({ onClose, activeTech, activeSection, hoveredProject }) {
     ? (active.related || []).map((r) => byId[r]?.name).filter(Boolean)
     : []
 
-  const showTechReadout = activeSection === 'Tech Stack'
+  const showTechReadout = activeSection === 'Skillset'
   const showProjectReadout = activeSection === 'Projects'
 
   return (
@@ -150,7 +150,7 @@ function NotesPanel({ onClose, activeTech, activeSection, hoveredProject }) {
             </motion.div>
           ) : (
             <div>
-              <h4 style={styles.noteTitle}>Tech Stack</h4>
+              <h4 style={styles.noteTitle}>Skillset</h4>
               <p style={styles.paragraph}>
                 Hover over a technology chip to see how I use it and what it connects to.
               </p>
@@ -205,7 +205,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: '24px 18px 14px',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    borderBottom: '1px solid rgba(29, 29, 31, 0.1)',
   },
   headerLeft: {
     display: 'flex',
@@ -215,7 +215,7 @@ const styles = {
   title: {
     fontSize: '0.95rem',
     fontWeight: 600,
-    color: '#fff',
+    color: 'var(--ink)',
   },
   headerRight: {
     display: 'flex',
@@ -226,8 +226,8 @@ const styles = {
     height: 28,
     borderRadius: 20,
     border: 'none',
-    background: 'rgba(255,255,255,0.06)',
-    color: 'rgba(255,255,255,0.5)',
+    background: 'rgba(255,255,255,0.5)',
+    color: 'var(--ink-2)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -242,20 +242,20 @@ const styles = {
   noteTitle: {
     fontSize: '0.88rem',
     fontWeight: 600,
-    color: '#fff',
+    color: 'var(--ink)',
     marginBottom: 14,
   },
   paragraph: {
     fontSize: '0.78rem',
     lineHeight: 1.7,
-    color: 'rgba(255,255,255,0.55)',
+    color: 'var(--ink-2)',
     marginBottom: 14,
   },
   hint: {
     fontSize: '0.6rem',
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.25)',
+    color: 'var(--ink-3)',
     marginTop: 20,
   },
   /* ── Tech readout ── */
@@ -268,18 +268,18 @@ const styles = {
   techName: {
     fontSize: '1rem',
     fontWeight: 600,
-    color: '#fff',
+    color: 'var(--ink)',
   },
   techGroup: {
     fontSize: '0.55rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.35)',
+    color: 'var(--ink-3)',
   },
   techNote: {
     fontSize: '0.78rem',
     lineHeight: 1.7,
-    color: 'rgba(255,255,255,0.7)',
+    color: 'var(--ink-2)',
     marginBottom: 14,
   },
   /* ── Project readout ── */
@@ -291,19 +291,19 @@ const styles = {
     fontSize: '0.65rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    color: '#60a5fa',
+    color: 'var(--ink-2)',
     marginBottom: 6,
   },
   projectTitle: {
     fontSize: '0.95rem',
     fontWeight: 600,
-    color: '#fff',
+    color: 'var(--ink)',
     lineHeight: 1.4,
     margin: 0,
   },
   projectLink: {
     fontSize: '0.75rem',
-    color: '#60a5fa',
+    color: 'var(--ink)',
     textDecoration: 'none',
     wordBreak: 'break-all',
   },
@@ -314,8 +314,8 @@ const styles = {
     gap: 0,
     padding: '10px 0',
     marginBottom: 14,
-    borderTop: '1px solid rgba(255,255,255,0.06)',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    borderTop: '1px solid rgba(29, 29, 31, 0.1)',
+    borderBottom: '1px solid rgba(29, 29, 31, 0.1)',
   },
   stat: {
     flex: 1,
@@ -327,18 +327,18 @@ const styles = {
   statDivider: {
     width: 1,
     height: 24,
-    background: 'rgba(255,255,255,0.08)',
+    background: 'rgba(29, 29, 31, 0.12)',
   },
   statLabel: {
     fontSize: '0.8rem',
     letterSpacing: '0.12em',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.3)',
+    color: 'var(--ink)',
   },
   statValue: {
     fontSize: '0.8rem',
     fontWeight: 600,
-    color: '#60a5fa',
+    color: 'var(--ink)',
   },
   /* ── Sections ── */
   section: {
@@ -349,7 +349,7 @@ const styles = {
     fontSize: '0.7rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.3)',
+    color: 'var(--ink)',
     marginBottom: 8,
   },
   tagList: {
@@ -359,33 +359,34 @@ const styles = {
   },
   tag: {
     fontSize: '0.72rem',
-    padding: '3px 8px',
-    borderRadius: 6,
-    background: 'rgba(96, 165, 250, 0.1)',
-    border: '1px solid rgba(96, 165, 250, 0.2)',
-    color: 'rgba(255,255,255,0.7)',
+    padding: '3px 10px',
+    borderRadius: 999,
+    background: 'rgba(255, 255, 255, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.25)',
+    color: 'var(--ink-2)',
     whiteSpace: 'nowrap',
   },
   tagAlt: {
-    background: 'rgba(167, 139, 250, 0.08)',
-    border: '1px solid rgba(167, 139, 250, 0.18)',
+    background: 'rgba(255, 255, 255, 0.13)',
+    border: '1px solid rgba(29, 29, 31, 0.14)',
+    color: 'var(--ink-2)',
   },
   /* ── Works with ── */
   techRel: {
     marginTop: 12,
     paddingTop: 10,
-    borderTop: '1px solid rgba(255,255,255,0.06)',
+    borderTop: '1px solid rgba(29, 29, 31, 0.1)',
   },
   techRelLabel: {
     display: 'block',
     fontSize: '0.5rem',
     letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    color: '#60a5fa',
+    color: 'var(--ink)',
     marginBottom: 4,
   },
   techRelNames: {
     fontSize: '0.78rem',
-    color: 'rgba(255,255,255,0.5)',
+    color: 'var(--ink-2)',
   },
 }

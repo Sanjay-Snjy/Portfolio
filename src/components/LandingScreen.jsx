@@ -62,7 +62,7 @@ export default function LandingScreen({ onEnter }) {
             <div className="landing-glow-1" />
 
             <motion.button
-              className="landing-btn glass-panel-dark"
+              className="landing-btn glass-panel"
               onClick={handleClick}
               style={{
                 transform: `perspective(800px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`,
@@ -113,7 +113,7 @@ export default function LandingScreen({ onEnter }) {
             }}
           >
             <div className="landing-glow-1" />
-            <motion.button className="landing-btn glass-panel-dark">
+            <motion.button className="landing-btn glass-panel">
               Portfolio
             </motion.button>
           </motion.div>

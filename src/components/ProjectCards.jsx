@@ -188,8 +188,8 @@ function TiltCard({ children, onHover, index }) {
           ? 'transform 0.1s cubic-bezier(0.23, 1, 0.32, 1)'
           : 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
         boxShadow: hovering
-          ? '0 20px 60px rgba(171, 165, 165, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.25)'
-          : '0 4px 20px rgba(0,0,0,0.3)',
+          ? '0 24px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.45)'
+          : '0 10px 26px rgba(0, 0, 0, 0.22)',
       }}
     >
       {children}
@@ -297,7 +297,7 @@ const styles = {
   },
   card: {
     position: 'relative',
-    borderRadius: 18,
+    borderRadius: 'var(--radius-card)',
     overflow: 'hidden',
     cursor: 'pointer',
     minHeight: 220,
@@ -307,7 +307,7 @@ const styles = {
   cardBackground: {
     position: 'absolute',
     inset: 0,
-    borderRadius: 18,
+    borderRadius: 'var(--radius-card)',
     backgroundSize: '140% 100%',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -315,7 +315,7 @@ const styles = {
   scrim: {
     position: 'absolute',
     inset: 0,
-    borderRadius: 18,
+    borderRadius: 'var(--radius-card)',
     background:
       'linear-gradient(to top, rgba(5, 6, 15, 0.85) 0%, rgba(5, 6, 15, 0.35) 45%, rgba(5, 6, 15, 0.1) 100%)',
     zIndex: 0,
@@ -405,7 +405,7 @@ const styles = {
   edgeHighlight: {
     position: 'absolute',
     inset: 0,
-    borderRadius: 18,
+    borderRadius: 'var(--radius-card)',
     pointerEvents: 'none',
     zIndex: 2,
   },

@@ -5,19 +5,17 @@ import {
   Home,
   Layers,
   Cpu,
-  GraduationCap,
   Mail,
 } from 'lucide-react'
 
 const icons = {
   Home: Home,
   Projects: Layers,
-  'Tech Stack': Cpu,
-  Education: GraduationCap,
+  Skillset: Cpu,
   Contact: Mail,
 }
 
-function NavBar({ sections, active, onNavigate }) {
+function NavBar({ sections, active, onNavigate, onPrefetch }) {
   return (
     <div className="navbar" style={styles.navbar}>
       {sections.map((section) => {
@@ -26,12 +24,16 @@ function NavBar({ sections, active, onNavigate }) {
         return (
           <motion.button
             key={section}
+            /* The chunk for a lazy section starts loading the moment the
+               pointer is on its way to the button, so the click never waits. */
+            onMouseEnter={onPrefetch}
+            onFocus={onPrefetch}
             onClick={() => { playSound('nav'); onNavigate(section) }}
             style={{
               ...styles.navItem,
               ...(isActive ? styles.navItemActive : {}),
             }}
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.08)' }}
+            whileHover={{ scale: 1.03, backgroundColor: 'rgba(255, 255, 255, 0.13)' }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.15 }}
           >
@@ -76,15 +78,17 @@ const styles = {
     width: 160,
     flexShrink: 0,
   },
+  /* visionOS sidebar rows: vibrancy text, hover is a soft white pill,
+     selection is a brighter pill with a whisper of shadow. */
   navItem: {
     display: 'flex',
     alignItems: 'center',
     gap: 10,
     padding: '10px 14px',
-    borderRadius: 20,
+    borderRadius: 16,
     border: 'none',
     background: 'transparent',
-    color: '#fff',
+    color: 'var(--ink)',
     cursor: 'pointer',
     position: 'relative',
     fontFamily: 'inherit',
@@ -92,16 +96,10 @@ const styles = {
     transition: 'background 0.2s',
   },
   navItemActive: {
-    background: 'rgba(255, 255, 255, 0.1)',
+    background: 'rgba(255, 255, 255, 0.59)',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
   },
   indicator: {
-    position: 'absolute',
-    left: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: 3,
-    height: 20,
-    borderRadius: 2,
-    background: 'linear-gradient(180deg, #6ee7b7, #3b82f6)',
+    display: 'none',
   },
 }

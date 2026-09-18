@@ -15,14 +15,25 @@ import { MousePointer2 } from 'lucide-react'
 import './App.css'
 
 /* Home is the default view, so it stays in the initial chunk. The other, much
-   heavier views are split out — the landing screen and HUD shell no longer wait
-   on code a visitor may never open. They are prefetched once the browser is
-   idle, so navigating to them is still instant. */
-const ProjectCards = lazy(() => import('./components/ProjectCards'))
-const TechStack = lazy(() => import('./components/TechStack'))
-const ContactSection = lazy(() => import('./components/ContactSection'))
+   heavier views are split out. The loaders are hoisted so the same import can
+   be kicked off from the enter click, a nav hover, or the idle prefetch —
+   the module promise is cached, so repeat calls are free and Suspense never
+   flashes a second time. */
+const loadProjectCards = () => import('./components/ProjectCards')
+const loadTechStack = () => import('./components/TechStack')
+const loadContactSection = () => import('./components/ContactSection')
 
-const sections = ['Home', 'Projects', 'Tech Stack', 'Education', 'Contact']
+const prefetchDeferredSections = () => {
+  loadProjectCards()
+  loadTechStack()
+  loadContactSection()
+}
+
+const ProjectCards = lazy(loadProjectCards)
+const TechStack = lazy(loadTechStack)
+const ContactSection = lazy(loadContactSection)
+
+const sections = ['Home', 'Projects', 'Skillset', 'Contact']
 
 /* ── Inner app that consumes TiltContext ── */
 function AppInner() {
@@ -52,14 +63,20 @@ function AppInner() {
 
   const handleCloseNotes = useCallback(() => setShowNotes(false), [])
 
-  /* Pull the deferred section chunks in once the main thread is free, so the
-     first paint is never gated on them but navigation stays instant. */
+  /* Entering the HUD is the earliest signal of intent — start pulling the
+     deferred chunks right then, rather than waiting for idle. */
+  const handleEnter = useCallback(() => {
+    setEntered(true)
+    prefetchDeferredSections()
+  }, [])
+
+  /* Hovering/focusing a nav item means the user is about to click it. */
+  const handleNavPrefetch = useCallback(() => prefetchDeferredSections(), [])
+
+  /* Belt and suspenders: pull the deferred section chunks in once the main
+     thread is free anyway, so the first paint is never gated on them. */
   useEffect(() => {
-    const prefetch = () => {
-      import('./components/ProjectCards')
-      import('./components/TechStack')
-      import('./components/ContactSection')
-    }
+    const prefetch = () => prefetchDeferredSections()
     if ('requestIdleCallback' in window) {
       const id = window.requestIdleCallback(prefetch, { timeout: 2500 })
       return () => window.cancelIdleCallback(id)
@@ -79,7 +96,7 @@ function AppInner() {
       </div>
 
       {/* Landing Screen — transparent, just the icon */}
-      {!entered && <LandingScreen onEnter={() => setEntered(true)} />}
+      {!entered && <LandingScreen onEnter={handleEnter} />}
 
       {/* Top right controls — always visible; back button only after entering */}
       <div className="top-controls">
@@ -118,19 +135,19 @@ function AppInner() {
             mouseInfluence={0.15}
             depth={1}
             perspective={1000}
-            glass="dark"
+            glass="light"
           >
             <NavBar
               sections={sections}
               active={activeSection}
               onNavigate={handleNavigate}
+              onPrefetch={handleNavPrefetch}
             />
           </TiltLayer>
           </div>
 
           {/* ── Center Content ── (no tilt — stays flat) */}
-          <div className="center-content glass-panel-dark">
-            <Suspense fallback={null}>
+          <div className="center-content glass-panel">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection}
@@ -140,6 +157,20 @@ function AppInner() {
                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 className="center-inner"
               >
+                {/* The Suspense boundary sits *inside* the presence child on
+                    purpose. Wrapping AnimatePresence instead meant a lazy
+                    section suspended the swap itself: the previous section
+                    stayed on screen with no feedback until the chunk landed.
+                    Here the animated element always mounts, and the fallback
+                    (which reserves the panel's height, so it can't collapse
+                    into a thin strip) shows a spinner while it loads. */}
+                <Suspense
+                  fallback={
+                    <div className="section-fallback">
+                      <span className="section-fallback__spinner" />
+                    </div>
+                  }
+                >
                 {activeSection === 'Home' && (
                   <div className="home-view">
                     <Home />
@@ -150,7 +181,7 @@ function AppInner() {
                     <ProjectCards expanded onHoverProject={setHoveredProject} />
                   </div>
                 )}
-                {activeSection === 'Tech Stack' && (
+                {activeSection === 'Skillset' && (
                   <div className="personal-view">
                     <TechStack activeId={activeTechId} setActiveId={setActiveTechId} zoom={zoom} />
                   </div>
@@ -175,9 +206,9 @@ function AppInner() {
                   </div>
                 )}
                 {activeSection === 'Contact' && <ContactSection />}
+                </Suspense>
               </motion.div>
             </AnimatePresence>
-            </Suspense>
           </div>
 
           {/* ── Right Notes Panel ── */}
@@ -196,7 +227,7 @@ function AppInner() {
                   mouseInfluence={0.15}
                   depth={1}
                   perspective={1000}
-                  glass="dark"
+                  glass="light"
                 >
                   <NotesPanel
                     onClose={handleCloseNotes}

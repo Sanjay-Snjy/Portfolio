@@ -12,7 +12,7 @@ export default function SocialBar() {
   return (
     <motion.div
       style={styles.bar}
-      className="glass-panel-dark"
+      className="glass-panel"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.6 }}
@@ -25,7 +25,7 @@ export default function SocialBar() {
             href={link.href}
             style={styles.link}
             onClick={() => playSound('social')}
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.16)' }}
+            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.75)' }}
             whileTap={{ scale: 0.95 }}
           >
             <Icon size={16} style={{ opacity: 0.6 }} />
@@ -52,7 +52,7 @@ const styles = {
     borderRadius: 50,
     border: 'none',
     background: 'transparent',
-    color: 'rgba(255,255,255,0.8)',
+    color: 'var(--ink)',
     textDecoration: 'none',
     fontSize: '0.82rem',
     fontWeight: 400,

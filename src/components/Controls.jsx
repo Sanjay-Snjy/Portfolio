@@ -9,7 +9,7 @@ export default function Controls({ showBack = true, onBack, onFullscreen }) {
         <motion.button
           style={styles.btn}
           onClick={() => { playSound('back'); onBack() }}
-          whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
+          whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.85)' }}
           whileTap={{ scale: 0.9 }}
           title="Back to landing"
         >
@@ -19,7 +19,7 @@ export default function Controls({ showBack = true, onBack, onFullscreen }) {
       <motion.button
         style={styles.btn}
         onClick={() => { playSound('fullscreen'); onFullscreen() }}
-        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
+        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.85)' }}
         whileTap={{ scale: 0.9 }}
       >
         <Maximize2 size={16} />
@@ -37,10 +37,12 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: '50%',
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(20px)',
-    color: 'rgba(255, 255, 255, 0.3)',
+    border: '1px solid var(--glass-stroke)',
+    background: 'var(--glass-fill)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    boxShadow: 'var(--shadow-float), var(--glass-edge)',
+    color: 'var(--ink-2)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',

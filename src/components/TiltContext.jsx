@@ -137,12 +137,9 @@ export function TiltLayer({
 }) {
   const { isMobile } = useTilt()
 
-  const glassClass =
-    glass === 'dark'
-      ? 'glass-panel-dark'
-      : glass === 'light'
-        ? 'glass-panel'
-        : ''
+  /* The material is light-only now (the visionOS restyle), so both the 'light'
+     and the legacy 'dark' value resolve to the same class. */
+  const glassClass = glass ? 'glass-panel' : ''
 
   const mergedClass = [
     'tilt-layer',

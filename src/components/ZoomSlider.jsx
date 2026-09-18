@@ -104,7 +104,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
       <motion.button
         style={{ ...styles.btn, opacity: zoom >= MAX ? 0.35 : 1 }}
         onClick={() => { playSound('zoom'); onZoom(Math.min(MAX, zoom + (MAX - MIN) / STEPS)) }}
-        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
+        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.9)' }}
         whileTap={{ scale: 0.9 }}
         title="Zoom in"
       >
@@ -128,8 +128,8 @@ export default function ZoomSlider({ zoom, onZoom }) {
         style={{
           ...styles.track,
           boxShadow: dragging
-            ? '0 0 0 1px rgba(255,255,255,0.25), 0 8px 32px rgba(0,0,0,0.4)'
-            : '0 4px 20px rgba(0,0,0,0.3)',
+            ? '0 0 0 2px rgba(10, 132, 255, 0.32), 0 8px 24px rgba(0,0,0,0.25)'
+            : '0 2px 10px rgba(0,0,0,0.18)',
         }}
       >
         {/* Filled portion — height is fixed and scaled, so no layout runs */}
@@ -147,7 +147,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
       <motion.button
         style={{ ...styles.btn, opacity: zoom <= MIN ? 0.35 : 1 }}
         onClick={() => { playSound('zoom'); onZoom(Math.max(MIN, zoom - (MAX - MIN) / STEPS)) }}
-        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.15)' }}
+        whileHover={{ scale: 1.1, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
         whileTap={{ scale: 0.9 }}
         title="Zoom out"
       >
@@ -158,6 +158,7 @@ export default function ZoomSlider({ zoom, onZoom }) {
 }
 
 const styles = {
+  /* A visionOS ornament: a small floating pill of the same glass material. */
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
@@ -165,19 +166,20 @@ const styles = {
     gap: 10,
     padding: 10,
     borderRadius: 999,
-    background: 'rgba(15, 15, 25, 0.4)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
+    background: 'var(--glass-fill)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    boxShadow: 'var(--shadow-float), var(--glass-edge)',
     transform: 'scale(0.9)',
-    border: '1px solid rgba(255,255,255,0.12)',
+    border: '1px solid var(--glass-stroke)',
   },
   btn: {
     width: 30,
     height: 30,
     borderRadius: '50%',
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.08)',
-    color: 'rgba(255,255,255,0.7)',
+    border: '1px solid rgba(255, 255, 255, 0.31)',
+    background: 'rgba(255, 255, 255, 0.09)',
+    color: 'var(--ink-2)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -191,8 +193,8 @@ const styles = {
     width: 8,
     height: TRACK_H,
     borderRadius: 999,
-    background: 'rgba(255,255,255,0.1)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(29, 29, 31, 0.12)',
+    border: '1px solid rgba(255,255,255,0.55)',
     cursor: 'ns-resize',
     overflow: 'visible',
     outline: 'none',
@@ -205,7 +207,7 @@ const styles = {
     right: 0,
     height: '100%',
     borderRadius: 999,
-    background: '#ffffff81',
+    background: 'rgba(208, 223, 239, 0.9)',
     transformOrigin: 'bottom',
     transition: 'transform 0.05s linear',
     willChange: 'transform',
@@ -218,7 +220,7 @@ const styles = {
     height: 16,
     borderRadius: '50%',
     background: '#fff',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.5), 0 0 0 3px rgba(139,92,246,0.35)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.28), 0 0 0 2px rgba(252, 253, 255, 0.01)',
     cursor: 'grab',
     willChange: 'transform',
   },

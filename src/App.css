@@ -95,14 +95,9 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(15, 15, 25, 0.55);
-  backdrop-filter: blur(40px) saturate(150%);
-  -webkit-backdrop-filter: blur(40px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-window);
+  /* Vibrancy: everything inside the window inherits the ink text colour. */
+  color: var(--ink);
 }
 
 .center-inner {
@@ -110,6 +105,30 @@
   /* Fixed layout height — every section (Home, Projects, Personal, Career, Contact)
      renders inside the same sized panel; pages scroll internally if needed. */
   height: calc(100vh - 255px);
+}
+
+/* ── Lazy-section fallback ─────────────────────────
+   Reserves the panel's full footprint while a section chunk loads, so the
+   glass panel never collapses into a thin strip on a cold first click. */
+.section-fallback {
+  width: 100%;
+  height: calc(100vh - 255px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-fallback__spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(29, 29, 31, 0.14);
+  border-top-color: rgba(29, 29, 31, 0.55);
+  animation: fallbackSpin 0.9s linear infinite;
+}
+
+@keyframes fallbackSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Projects View ───────────────────────────────── */
@@ -188,26 +207,17 @@
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-/* ── Glass Panel Base ────────────────────────────── */
+/* ── Glass Panel — visionOS window material ─────────
+   Light frosted glass: translucent white, heavy blur + saturation, a
+   bright specular top edge instead of a hard outline, and layered
+   ambient shadows that lift the window off the scene behind it. */
 .glass-panel {
-  background:  rgba(237, 237, 240, 0.056);
-  backdrop-filter: blur(10px) saturate(100%);
-  -webkit-backdrop-filter: blur(10px) saturate(100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 30px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.glass-panel-dark {
-  background:  rgba(3, 3, 3, 0.085);
-  backdrop-filter: blur(50px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 30px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--radius-window);
+  box-shadow: var(--shadow-window), var(--glass-edge);
 }
 
 /* ── Placeholder Views ───────────────────────────── */
@@ -254,14 +264,15 @@
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--ink-2);
   margin-bottom: 4px;
 }
 
 .education-title {
-  color: #fff;
+  color: var(--ink);
   font-size: 1.3rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .education-list {
@@ -281,9 +292,9 @@
   width: 1px;
   background: linear-gradient(
     to bottom,
-    rgba(245, 245, 246, 0.5),
-    rgba(245, 245, 246, 0.3),
-    rgba(96, 165, 250, 0.15)
+    rgba(29, 29, 31, 0.3),
+    rgba(29, 29, 31, 0.18),
+    rgba(10, 132, 255, 0.2)
   );
 }
 
@@ -293,8 +304,9 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px 14px 18px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.058);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   /* No backdrop-filter here: this row sits inside .center-content, which
      already blurs the scene. A second nested backdrop-filter would force an
      extra render pass per row for a visually identical result. */
@@ -305,20 +317,20 @@
   height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #ffffff, #ffffff);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, var(--accent), #64b5ff);
+  box-shadow: 0 0 10px rgba(10, 132, 255, 0.5);
 }
 
 .education-degree {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--ink);
   margin: 0 0 3px;
 }
 
 .education-inst {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--ink-2);
   margin: 0;
 }
 
@@ -357,10 +369,10 @@
   position: relative;
   z-index: 2;
   padding: 16px 40px;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   font-size: 1rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--ink);
   cursor: pointer;
   font-family: inherit;
   letter-spacing: 0.5px;
@@ -530,7 +542,7 @@
   .center-content {
     flex: 1;
     max-width: 100%;
-    border-radius: 40px;
+    border-radius: var(--radius-window);
     margin-top: 8px;
     padding: 0px;
   }
@@ -538,6 +550,10 @@
   .center-inner {
     height: calc(100vh - 150px);
      border-radius: 80px;
+  }
+
+  .section-fallback {
+    height: calc(100vh - 150px);
   }
 
   /* ── Notes Panel ── hidden on mobile */
@@ -605,7 +621,8 @@
   /* Stop ambient/looping decoration. */
   .landing-glow-1,
   .landing-hint,
-  .focus-hint {
+  .focus-hint,
+  .section-fallback__spinner {
     animation: none;
   }
 

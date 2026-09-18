@@ -1,3 +1,41 @@
+/* ══════════════════════════════════════════════════════════════
+   visionOS material tokens
+   One source of truth for the spatial UI: light frosted glass,
+   continuous radii, layered ambient shadows, and vibrancy text.
+   Every panel, pill and control below reads from these.
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  /* Glass material */
+  --glass-fill: rgba(255, 255, 255, 0.081);
+  --glass-fill-strong: rgba(255, 255, 255, 0.112);
+  --glass-fill-soft: rgba(255, 255, 255, 0.084);
+  --glass-stroke: rgba(255, 255, 255, 0);
+  --glass-blur: blur(34px) saturate(140%);
+  /* Bright specular top edge — the tell of a visionOS window. */
+  --glass-edge:
+    inset 0 1px 0 rgba(255, 255, 255, 0.132),
+    inset 0 -1px 0 rgba(255, 255, 255, 0);
+  --shadow-window:
+    0 28px 60px rgba(0, 0, 0, 0.3),
+    0 6px 18px rgba(0, 0, 0, 0.16);
+  --shadow-float:
+    0 14px 34px rgba(0, 0, 0, 0.22),
+    0 3px 10px rgba(0, 0, 0, 0.12);
+
+  /* Vibrancy text */
+  --ink: #ffffff;
+  --ink-2: rgba(253, 253, 253, 0.64);
+  --ink-3: rgba(255, 255, 255, 0.4);
+  --accent: #0a84ff;
+  --accent-ink: #0a6fd6;
+  --accent-soft: rgba(10, 132, 255, 0.14);
+
+  /* Continuous corner radii */
+  --radius-window: 40px;
+  --radius-card: 26px;
+  --radius-pill: 999px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +61,7 @@ html, body, #root {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 4px;
 }
 

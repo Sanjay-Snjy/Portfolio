@@ -74,7 +74,7 @@ function TechStack({ activeId, setActiveId, zoom }) {
   return (
     <div className="stack">
       <div className="stack__header">
-        <p className="stack__eyebrow">TECH STACK</p>
+        <p className="stack__eyebrow">SKILLSET</p>
         <h3 className="stack__title">Tools, and how they fit together.</h3>
       </div>
 
