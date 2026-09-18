@@ -96,7 +96,7 @@ const styles = {
     transition: 'background 0.2s',
   },
   navItemActive: {
-    background: 'rgba(255, 255, 255, 0.59)',
+    background: 'rgba(255, 255, 255, 0.12)',
     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
   },
   indicator: {
