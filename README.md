@@ -1,16 +1,43 @@
-# React + Vite
+# Vision Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A visually rich personal portfolio built with React, Vite, Framer Motion, and Three.js. The experience combines a 3D ambient background, glassmorphism UI panels, animated transitions, and project/skill sections to present a modern developer portfolio.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This portfolio is designed to feel immersive and interactive rather than a standard static resume. It includes:
 
-## React Compiler
+- an animated landing experience
+- a 3D background scene with layered motion
+- a custom navigation HUD
+- project showcase cards
+- skill and technology visualization
+- education and contact sections
+- responsive layout with interactive glass panels
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the Oxlint configuration
+- React 19
+- Vite
+- JavaScript
+- Framer Motion
+- Three.js / React Three Fiber
+- @react-three/drei
+- Lucide React
+- CSS custom styling
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Features
+
+### Portfolio sections
+- Home
+- Projects
+- Skillset
+- Contact
+
+### Experience highlights
+- Interactive cursor orb and animated UI effects
+- Fullscreen toggle support
+- Zoom controls for the portfolio HUD
+- Lazy-loaded project and section data for smoother performance
+- Custom notes panel tied to active tech or project state
+
+
