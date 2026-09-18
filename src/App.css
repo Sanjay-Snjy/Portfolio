@@ -214,7 +214,6 @@
 .glass-panel {
   background: var(--glass-fill);
   backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-stroke);
   border-radius: var(--radius-window);
   box-shadow: var(--shadow-window), var(--glass-edge);
